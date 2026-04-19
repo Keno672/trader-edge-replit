@@ -1,0 +1,1 @@
+{"version":3,"file":"uploadScanResponse.d.ts","sourceRoot":"","sources":["../../../src/generated/types/uploadScanResponse.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,OAAO,EAAE,MAAM,WAAW,CAAC;AAEzC,MAAM,WAAW,kBAAkB;IACjC,EAAE,EAAE,OAAO,CAAC;IACZ,OAAO,EAAE,MAAM,CAAC;IAChB,KAAK,EAAE,MAAM,CAAC;IACd,IAAI,EAAE,OAAO,EAAE,CAAC;CACjB"}
