@@ -1,0 +1,553 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Trader Edge API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: signals
+    description: Trading signals and setups
+  - name: watchlist
+    description: Watchlist instruments
+  - name: market
+    description: Market overview and sentiment
+  - name: session
+    description: Scan upload session management
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /signals:
+    get:
+      operationId: listSignals
+      tags: [signals]
+      summary: Get today's top trading signals
+      responses:
+        "200":
+          description: List of top signals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Signal"
+
+  /signals/{id}:
+    get:
+      operationId: getSignal
+      tags: [signals]
+      summary: Get a single signal by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Signal details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Signal"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /signals/{id}/decision:
+    get:
+      operationId: getSignalDecision
+      tags: [signals]
+      summary: Get AI trade decision for a signal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trade decision details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradeDecision"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /watchlist:
+    get:
+      operationId: getWatchlist
+      tags: [watchlist]
+      summary: Get full watchlist grouped by category
+      responses:
+        "200":
+          description: Watchlist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WatchlistResponse"
+
+  /watchlist/instruments:
+    get:
+      operationId: listWatchlistInstruments
+      tags: [watchlist]
+      summary: Get flat list of all watchlist instruments
+      responses:
+        "200":
+          description: All instruments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Instrument"
+
+  /market/summary:
+    get:
+      operationId: getMarketSummary
+      tags: [market]
+      summary: Get overall market sentiment and bias
+      responses:
+        "200":
+          description: Market summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketSummary"
+
+  /session/start:
+    post:
+      operationId: startSession
+      tags: [session]
+      summary: Start or reset a scan session
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartSessionBody"
+      responses:
+        "200":
+          description: Session started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+
+  /session/current:
+    get:
+      operationId: getCurrentSession
+      tags: [session]
+      summary: Get current session state
+      responses:
+        "200":
+          description: Current session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+
+  /session/upload-scan:
+    post:
+      operationId: uploadScan
+      tags: [session]
+      summary: Upload scan1 or scan2 text file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                scanSlot:
+                  type: string
+                  enum: [scan1, scan2]
+              required:
+                - scanSlot
+      responses:
+        "200":
+          description: Scan uploaded and parsed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadScanResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /session/generate-top5:
+    post:
+      operationId: generateTop5
+      tags: [session]
+      summary: Merge scans and generate top 5 signals
+      responses:
+        "200":
+          description: Top 5 generated and saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateTop5Response"
+        "400":
+          description: Both scans required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Signal:
+      type: object
+      properties:
+        id:
+          type: integer
+        ticker:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        direction:
+          type: string
+          enum: [BUY, SELL]
+        confidence:
+          type: integer
+        currentPrice:
+          type: string
+        change:
+          type: string
+        changePositive:
+          type: boolean
+        bias:
+          type: string
+          enum: [Risk-On, Risk-Off, Neutral]
+        rank:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - ticker
+        - name
+        - category
+        - direction
+        - confidence
+        - currentPrice
+        - change
+        - changePositive
+        - bias
+        - rank
+        - createdAt
+
+    TradeDecision:
+      type: object
+      properties:
+        id:
+          type: integer
+        signalId:
+          type: integer
+        ticker:
+          type: string
+        direction:
+          type: string
+          enum: [BUY, SELL]
+        confidence:
+          type: integer
+        bias:
+          type: string
+          enum: [Risk-On, Risk-Off, Neutral]
+        entryRange:
+          type: string
+        stopLoss:
+          type: string
+        takeProfit1:
+          type: string
+        takeProfit2:
+          type: string
+        rationale:
+          type: string
+        timeframe:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - signalId
+        - ticker
+        - direction
+        - confidence
+        - bias
+        - entryRange
+        - stopLoss
+        - takeProfit1
+        - takeProfit2
+        - rationale
+        - timeframe
+        - createdAt
+
+    Instrument:
+      type: object
+      properties:
+        id:
+          type: integer
+        ticker:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+          enum: [market, crypto]
+        currentPrice:
+          type: string
+        change:
+          type: string
+        changePositive:
+          type: boolean
+        direction:
+          type: ["string", "null"]
+          enum: [BUY, SELL, null]
+        confidence:
+          type: ["integer", "null"]
+      required:
+        - id
+        - ticker
+        - name
+        - category
+        - currentPrice
+        - change
+        - changePositive
+        - direction
+        - confidence
+
+    WatchlistResponse:
+      type: object
+      properties:
+        market:
+          type: array
+          items:
+            $ref: "#/components/schemas/Instrument"
+        crypto:
+          type: array
+          items:
+            $ref: "#/components/schemas/Instrument"
+      required:
+        - market
+        - crypto
+
+    MarketSummary:
+      type: object
+      properties:
+        overallBias:
+          type: string
+          enum: [Risk-On, Risk-Off, Neutral]
+        biasStrength:
+          type: integer
+        signalCount:
+          type: integer
+        buyCount:
+          type: integer
+        sellCount:
+          type: integer
+        topCategory:
+          type: string
+        avgConfidence:
+          type: integer
+        marketNote:
+          type: string
+      required:
+        - overallBias
+        - biasStrength
+        - signalCount
+        - buyCount
+        - sellCount
+        - topCategory
+        - avgConfidence
+        - marketNote
+
+    ScanRow:
+      type: object
+      properties:
+        ticker:
+          type: string
+        category:
+          type: string
+        side:
+          type: string
+          enum: [BUY, SELL]
+        score:
+          type: integer
+        reason:
+          type: string
+      required:
+        - ticker
+        - category
+        - side
+        - score
+        - reason
+
+    Top5Item:
+      type: object
+      properties:
+        rank:
+          type: integer
+        ticker:
+          type: string
+        category:
+          type: string
+        side:
+          type: string
+          enum: [BUY, SELL]
+        score:
+          type: integer
+        reason:
+          type: string
+        sourceScans:
+          type: array
+          items:
+            type: string
+      required:
+        - rank
+        - ticker
+        - category
+        - side
+        - score
+        - reason
+        - sourceScans
+
+    SessionState:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        scan1Count:
+          type: integer
+        scan2Count:
+          type: integer
+        scan1Ready:
+          type: boolean
+        scan2Ready:
+          type: boolean
+        top5Generated:
+          type: boolean
+        top5:
+          type: array
+          items:
+            $ref: "#/components/schemas/Top5Item"
+        watchlistCount:
+          type: integer
+      required:
+        - id
+        - label
+        - createdAt
+        - updatedAt
+        - scan1Count
+        - scan2Count
+        - scan1Ready
+        - scan2Ready
+        - top5Generated
+        - top5
+        - watchlistCount
+
+    StartSessionBody:
+      type: object
+      properties:
+        label:
+          type: string
+
+    SessionResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        message:
+          type: string
+        session:
+          $ref: "#/components/schemas/SessionState"
+      required:
+        - ok
+        - session
+
+    UploadScanResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        message:
+          type: string
+        count:
+          type: integer
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScanRow"
+      required:
+        - ok
+        - message
+        - count
+        - rows
+
+    GenerateTop5Response:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        message:
+          type: string
+        session:
+          $ref: "#/components/schemas/SessionState"
+      required:
+        - ok
+        - message
+        - session
