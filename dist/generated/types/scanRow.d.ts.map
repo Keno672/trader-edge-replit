@@ -1,0 +1,1 @@
+{"version":3,"file":"scanRow.d.ts","sourceRoot":"","sources":["../../../src/generated/types/scanRow.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,eAAe,CAAC;AAEjD,MAAM,WAAW,OAAO;IACtB,MAAM,EAAE,MAAM,CAAC;IACf,QAAQ,EAAE,MAAM,CAAC;IACjB,IAAI,EAAE,WAAW,CAAC;IAClB,KAAK,EAAE,MAAM,CAAC;IACd,MAAM,EAAE,MAAM,CAAC;CAChB"}
