@@ -1,0 +1,1 @@
+{"version":3,"file":"sessionResponse.d.ts","sourceRoot":"","sources":["../../../src/generated/types/sessionResponse.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,gBAAgB,CAAC;AAEnD,MAAM,WAAW,eAAe;IAC9B,EAAE,EAAE,OAAO,CAAC;IACZ,OAAO,CAAC,EAAE,MAAM,CAAC;IACjB,OAAO,EAAE,YAAY,CAAC;CACvB"}
