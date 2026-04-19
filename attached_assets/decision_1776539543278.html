@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trade Decision</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <div id="navMount"></div>
+    
+<section class="panel stack">
+  <div>
+    <div class="eyebrow">Step 3</div>
+    <h2 id="decisionTitle">SELL GOLD</h2>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div class="sub">Confidence</div>
+    <div class="score" id="decisionConfidence">84%</div>
+  </div>
+</section>
+<section class="panel" style="margin-top:16px">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <h3>AI Trade Decision</h3>
+    <div id="decisionBias" class="bias-badge bias-off">Risk-Off</div>
+  </div>
+  <div class="plan-grid">
+    <div class="plan-box"><div class="eyebrow">Entry</div><h3 id="entry">2368–2374</h3></div>
+    <div class="plan-box"><div class="eyebrow">Stop Loss</div><h3 id="stop">2383</h3></div>
+    <div class="plan-box"><div class="eyebrow">Take Profit 1</div><h3 id="tp1">2352</h3></div>
+    <div class="plan-box"><div class="eyebrow">Take Profit 2</div><h3 id="tp2">2338</h3></div>
+  </div>
+  <div class="divider"></div>
+  <div class="eyebrow">Why this bias</div>
+  <p class="sub" id="decisionWhy">Defensive tone favours cleaner fades into resistance.</p>
+</section>
+<div class="actions">
+  <a class="btn" href="chart.html">Back to Chart</a>
+  <a class="btn primary" href="watchlist.html">Open Watchlist</a>
+</div>
+<script>
+  mountNav('Trade Decision');
+  renderDecision();
+</script>
+
+  </div>
+</body>
+</html>

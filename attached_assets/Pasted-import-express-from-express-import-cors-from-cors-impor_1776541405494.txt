@@ -1,0 +1,143 @@
+import express from "express";
+import cors from "cors";
+import multer from "multer";
+import { parseScanText } from "./src/scanParser.js";
+import { mergeScansAndBuildTop5 } from "./src/ranker.js";
+
+const app = express();
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.use(cors());
+app.use(express.json());
+
+const db = {
+  currentSession: null
+};
+
+// ---------- helpers ----------
+function ensureSession() {
+  if (!db.currentSession) {
+    db.currentSession = {
+      id: `session_${Date.now()}`,
+      label: "Morning Command",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      scan1: [],
+      scan2: [],
+      mergedWatchlist: [],
+      top5: []
+    };
+  }
+  return db.currentSession;
+}
+
+// ---------- routes ----------
+
+// health
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true, message: "Trader Edge backend phase 1 running" });
+});
+
+// create / reset session
+app.post("/api/session/start", (req, res) => {
+  const { label } = req.body || {};
+
+  db.currentSession = {
+    id: `session_${Date.now()}`,
+    label: label || "Morning Command",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    scan1: [],
+    scan2: [],
+    mergedWatchlist: [],
+    top5: []
+  };
+
+  res.json({
+    ok: true,
+    message: "Session started",
+    session: db.currentSession
+  });
+});
+
+// get session
+app.get("/api/session/current", (_req, res) => {
+  const session = ensureSession();
+  res.json({ ok: true, session });
+});
+
+// upload scan 1 or scan 2
+app.post("/api/session/upload-scan", upload.single("file"), (req, res) => {
+  try {
+    const session = ensureSession();
+
+    const scanSlot = req.body.scanSlot; // "scan1" or "scan2"
+    if (!scanSlot || !["scan1", "scan2"].includes(scanSlot)) {
+      return res.status(400).json({
+        ok: false,
+        error: "scanSlot must be scan1 or scan2"
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        ok: false,
+        error: "No file uploaded"
+      });
+    }
+
+    const text = req.file.buffer.toString("utf-8");
+    const parsedRows = parseScanText(text);
+
+    session[scanSlot] = parsedRows;
+    session.updatedAt = new Date().toISOString();
+
+    res.json({
+      ok: true,
+      message: `${scanSlot} uploaded`,
+      count: parsedRows.length,
+      rows: parsedRows
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+// merge scan 1 + scan 2 and generate top 5
+app.post("/api/session/generate-top5", (_req, res) => {
+  try {
+    const session = ensureSession();
+
+    if (!session.scan1.length || !session.scan2.length) {
+      return res.status(400).json({
+        ok: false,
+        error: "Both scan1 and scan2 must be uploaded first"
+      });
+    }
+
+    const result = mergeScansAndBuildTop5(session.scan1, session.scan2);
+
+    session.mergedWatchlist = result.watchlist;
+    session.top5 = result.top5;
+    session.updatedAt = new Date().toISOString();
+
+    res.json({
+      ok: true,
+      message: "Top 5 generated",
+      session
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Trader Edge backend running on port ${PORT}`);
+});

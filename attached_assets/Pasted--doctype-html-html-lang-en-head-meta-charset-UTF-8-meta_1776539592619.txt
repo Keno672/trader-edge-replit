@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Trader Edge</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: #0f1c31;
+      --panel2: #132540;
+      --line: rgba(255,255,255,.10);
+      --text: #eef4ff;
+      --muted: #9eb0c8;
+      --gold: #d9b16d;
+      --green: #7ad8a3;
+      --red: #ef7c7c;
+      --blue: #7eb6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(44,88,166,.35), transparent 28%),
+        radial-gradient(circle at top right, rgba(102,62,20,.22), transparent 28%),
+        #050b15;
+      color: var(--text);
+    }
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(15,28,49,.88);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 10px;
+      z-index: 3;
+      margin-bottom: 16px;
+    }
+    .brand { font-weight: 900; font-size: 22px; }
+    .brand span { color: var(--gold); }
+    .nav-mini {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+    }
+    .panel, .hero, .card, .chart-shell, .premium-card {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(16,28,49,.98), rgba(9,16,28,.98));
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      padding: 18px;
+    }
+    .hero {
+      min-height: 72vh;
+      display: flex;
+      align-items: flex-end;
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+      background:
+        linear-gradient(180deg, rgba(6,12,22,.18), rgba(6,12,22,.58)),
+        radial-gradient(circle at 70% 35%, rgba(126,182,255,.26), transparent 20%),
+        radial-gradient(circle at 78% 58%, rgba(217,177,109,.18), transparent 24%),
+        linear-gradient(135deg, #173566 0%, #0c1830 55%, #0a1220 100%);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(90deg, transparent, transparent 56px, rgba(255,255,255,.022) 57px),
+        repeating-linear-gradient(0deg, transparent, transparent 56px, rgba(255,255,255,.022) 57px);
+      pointer-events: none;
+    }
+    .hero-copy { position: relative; z-index: 1; }
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 42px; line-height: .96; font-weight: 950; }
+    h2 { font-size: 28px; font-weight: 900; }
+    h3 { font-size: 18px; font-weight: 900; }
+    .sub, .note { color: var(--muted); }
+    .stack { display: grid; gap: 14px; }
+    .actions, .chips, .plan-grid, .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .btn, .chip, .tab {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn.primary, .tab.active {
+      background: rgba(217,177,109,.13);
+      border-color: rgba(217,177,109,.35);
+    }
+    .top5-card, .watch-row, .plan-box {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .top5-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .score { font-size: 28px; font-weight: 950; color: var(--gold); }
+    .buy { color: var(--green); }
+    .sell { color: var(--red); }
+    .chart-shell { padding: 12px; }
+    .chart-box {
+      height: 440px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(126,182,255,.18), transparent 18%),
+        repeating-linear-gradient(to bottom, transparent, transparent 46px, rgba(255,255,255,.05) 47px),
+        repeating-linear-gradient(to right, transparent, transparent 56px, rgba(255,255,255,.05) 57px),
+        linear-gradient(180deg,#0d1930,#09111e);
+    }
+    .tv-line {
+      position: absolute;
+      left: 8%;
+      right: 14%;
+      top: 56%;
+      height: 6px;
+      background: linear-gradient(90deg, rgba(126,182,255,.15), rgba(126,182,255,.95));
+      border-radius: 999px;
+      transform: rotate(-8deg);
+    }
+    .tv-line::after {
+      content: "";
+      position: absolute;
+      right: -6px;
+      top: -5px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 18px rgba(126,182,255,.65);
+    }
+    .tv-badge {
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+    }
+    .tv-watermark {
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .plan-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .bias-badge {
+      display: inline-flex;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 900;
+      border: 1px solid var(--line);
+    }
+    .bias-on { background: rgba(122,216,163,.16); border-color: rgba(122,216,163,.35); }
+    .bias-off { background: rgba(239,124,124,.16); border-color: rgba(239,124,124,.35); }
+    .watch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,.08);
+      margin: 14px 0;
+    }
+    .hidden-mobile { display: none; }
+    @media (max-width: 420px) {
+      h1 { font-size: 36px; }
+      .chart-box { height: 390px; }
+      .plan-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="nav">
+      <div class="brand">The Trader <span>Edge</span></div>
+      <div class="nav-mini" id="navMini">Landing</div>
+    </div>
+
+    <section id="landing" class="screen active">
+      <div class="hero">
+        <div class="hero-copy stack">
+          <div>
+            <div class="eyebrow">Landing</div>
+            <h1>AI scans.<br>Live charts.<br>Clear decisions.</h1>
+          </div>
+          <p class="sub">Modern, cool, simple, clear.</p>
+          <div class="actions">
+            <button class="btn primary" onclick="go('top5')">Enter App</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="top5" class="screen">
+      <div class="panel stack">
+        <div>
+          <div class="eyebrow">Step 1</div>
+          <h2>Today’s Top 5 Setups</h2>
+          <p class="sub">Tap a setup to open the live chart.</p>
+        </div>
+      </div>
+      <div id="top5List" class="stack" style="margin-top:16px"></div>
+    </section>
+
+    <section id="chart" class="screen">
+      <div class="panel stack">
+        <div>
+          <div class="eyebrow">Step 2</div>
+          <h2 id="chartTicker">GOLD</h2>
+          <p class="sub" id="chartMeta">Commodities · Live Chart</p>
+        </div>
+      </div>
+      <div class="chart-shell" style="margin-top:16px">
+        <div class="chart-box">
+          <div class="tv-badge">TradingView Live</div>
+          <div class="tv-line"></div>
+          <div class="tv-watermark">Live chart placeholder</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" onclick="go('decision')">Scan This Chart</button>
+      </div>
+    </section>
+
+    <section id="decision" class="screen">
+      <div class="panel stack">
+        <div>
+          <div class="eyebrow">Step 3</div>
+          <h2 id="decisionTitle">SELL GOLD</h2>
+        </div>
+        <div class="row" style="display:flex;justify-content:space-between;align-items:center">
+          <div class="sub">Confidence</div>
+          <div class="score" id="decisionConfidence">84%</div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3>AI Trade Decision</h3>
+          <div id="decisionBias" class="bias-badge bias-off">Risk-Off</div>
+        </div>
+        <div class="plan-grid">
+          <div class="plan-box"><div class="eyebrow">Entry</div><h3 id="entry">2368–2374</h3></div>
+          <div class="plan-box"><div class="eyebrow">Stop Loss</div><h3 id="stop">2383</h3></div>
+          <div class="plan-box"><div class="eyebrow">Take Profit 1</div><h3 id="tp1">2352</h3></div>
+          <div class="plan-box"><div class="eyebrow">Take Profit 2</div><h3 id="tp2">2338</h3></div>
+        </div>
+        <div class="divider"></div>
+        <div class="eyebrow">Why this bias</div>
+        <p class="sub" id="decisionWhy">Defensive tone favours cleaner fades into resistance.</p>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="go('chart')">Back to Chart</button>
+        <button class="btn primary" onclick="go('watchlist')">Open Watchlist</button>
+      </div>
+    </section>
+
+    <section id="watchlist" class="screen">
+      <div class="panel stack">
+        <div>
+          <div class="eyebrow">Step 4</div>
+          <h2>Watchlist</h2>
+          <p class="sub">Open any instrument and jump to the live chart.</p>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <div class="eyebrow">Market Watch</div>
+        <div id="marketList" class="stack"></div>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <div class="eyebrow">Crypto Watch</div>
+        <div id="cryptoList" class="stack"></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" onclick="go('premium')">Go Premium</button>
+      </div>
+    </section>
+
+    <section id="premium" class="screen">
+      <div class="premium-card stack">
+        <div>
+          <div class="eyebrow">Step 5</div>
+          <h2>Premium</h2>
+          <p class="sub">Unlock full battlefield plans, deeper AI trade decisions, and expanded market access.</p>
+        </div>
+        <div class="divider"></div>
+        <div class="stack">
+          <div class="plan-box"><div class="eyebrow">Free</div><h3>Top 5 + Basic Mood</h3></div>
+          <div class="plan-box"><div class="eyebrow">Premium</div><h3>Battlefield Plan + Levels</h3></div>
+          <div class="plan-box"><div class="eyebrow">Premium Plus</div><h3>Deep AI Decision + Confidence</h3></div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" onclick="go('top5')">Back to Top 5</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const state = {
+      top5: [
+        { ticker: 'GOLD', score: 92, side: 'SELL', reason: 'Resistance fade' },
+        { ticker: 'NAS100', score: 88, side: 'BUY', reason: 'Dip support' },
+        { ticker: 'BTCUSD', score: 86, side: 'BUY', reason: 'Momentum hold' },
+        { ticker: 'EURUSD', score: 82, side: 'BUY', reason: 'Dollar soft' },
+        { ticker: 'WTI', score: 78, side: 'SELL', reason: 'Supply retest' },
+      ],
+      selected: 'GOLD',
+      watchlist: [
+        { ticker: 'GOLD', cat: 'Commodities', side: 'SELL', trend: 'Down' },
+        { ticker: 'NAS100', cat: 'Indices', side: 'BUY', trend: 'Up' },
+        { ticker: 'SPX500', cat: 'Indices', side: 'BUY', trend: 'Up' },
+        { ticker: 'EURUSD', cat: 'Forex', side: 'BUY', trend: 'Up' },
+        { ticker: 'USDJPY', cat: 'Forex', side: 'BUY', trend: 'Up' },
+        { ticker: 'WTI', cat: 'Commodities', side: 'SELL', trend: 'Down' },
+        { ticker: 'BTCUSD', cat: 'Crypto', side: 'BUY', trend: 'Up' },
+        { ticker: 'ETHUSD', cat: 'Crypto', side: 'SELL', trend: 'Down' },
+      ],
+      decision: {
+        GOLD: { side: 'SELL', confidence: '84%', entry: '2368–2374', stop: '2383', tp1: '2352', tp2: '2338', bias: 'Risk-Off', why: 'Defensive tone favours cleaner fades into resistance.' },
+        NAS100: { side: 'BUY', confidence: '81%', entry: '21,880–21,930', stop: '21,760', tp1: '22,040', tp2: '22,180', bias: 'Risk-On', why: 'Dip buyers still supporting growth risk.' },
+        BTCUSD: { side: 'BUY', confidence: '79%', entry: '88,200–88,900', stop: '87,300', tp1: '90,100', tp2: '91,400', bias: 'Risk-On', why: 'Crypto still leaning with broader beta appetite.' },
+        EURUSD: { side: 'BUY', confidence: '77%', entry: '1.0810–1.0820', stop: '1.0788', tp1: '1.0850', tp2: '1.0875', bias: 'Risk-Off', why: 'Dollar softness helping the pair despite cautious tone.' },
+        WTI: { side: 'SELL', confidence: '80%', entry: '81.20–81.80', stop: '82.35', tp1: '79.90', tp2: '78.80', bias: 'Risk-Off', why: 'Supply and headline risk keep rallies vulnerable.' }
+      }
+    };
+
+    function setNav(label) {
+      document.getElementById('navMini').textContent = label;
+    }
+
+    function go(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screen).classList.add('active');
+      const labelMap = {
+        landing: 'Landing',
+        top5: 'Top 5',
+        chart: 'Live Chart',
+        decision: 'Trade Decision',
+        watchlist: 'Watchlist',
+        premium: 'Premium'
+      };
+      setNav(labelMap[screen] || 'App');
+      if (screen === 'top5') renderTop5();
+      if (screen === 'chart') renderChart();
+      if (screen === 'decision') renderDecision();
+      if (screen === 'watchlist') renderWatchlist();
+    }
+
+    function renderTop5() {
+      const el = document.getElementById('top5List');
+      el.innerHTML = state.top5.map(t => `
+        <div class="top5-card" onclick="state.selected='${t.ticker}'; go('chart')">
+          <div>
+            <div class="eyebrow">${t.ticker}</div>
+            <h3 class="${t.side === 'BUY' ? 'buy' : 'sell'}">${t.side}</h3>
+            <div class="note">${t.reason}</div>
+          </div>
+          <div class="score">${t.score}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderChart() {
+      const inst = state.watchlist.find(x => x.ticker === state.selected) || state.watchlist[0];
+      document.getElementById('chartTicker').textContent = inst.ticker;
+      document.getElementById('chartMeta').textContent = `${inst.cat} · Live Chart`;
+    }
+
+    function renderDecision() {
+      const d = state.decision[state.selected] || state.decision.GOLD;
+      document.getElementById('decisionTitle').textContent = `${d.side} ${state.selected}`;
+      document.getElementById('decisionConfidence').textContent = d.confidence;
+      document.getElementById('entry').textContent = d.entry;
+      document.getElementById('stop').textContent = d.stop;
+      document.getElementById('tp1').textContent = d.tp1;
+      document.getElementById('tp2').textContent = d.tp2;
+      const bias = document.getElementById('decisionBias');
+      bias.textContent = d.bias;
+      bias.className = `bias-badge ${d.bias === 'Risk-On' ? 'bias-on' : 'bias-off'}`;
+      document.getElementById('decisionWhy').textContent = d.why;
+    }
+
+    function renderWatchlist() {
+      const market = state.watchlist.filter(x => x.cat !== 'Crypto');
+      const crypto = state.watchlist.filter(x => x.cat === 'Crypto');
+      const row = x => `
+        <div class="watch-row">
+          <div>
+            <strong>${x.ticker}</strong>
+            <div class="note">${x.cat}</div>
+          </div>
+          <div class="chips">
+            <span class="chip ${x.side === 'BUY' ? 'buy' : 'sell'}">${x.side}</span>
+            <span class="chip">${x.trend}</span>
+            <button class="btn" onclick="state.selected='${x.ticker}'; go('chart')">Open</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('marketList').innerHTML = market.map(row).join('');
+      document.getElementById('cryptoList').innerHTML = crypto.map(row).join('');
+    }
+
+    renderTop5();
+  </script>
+</body>
+</html>

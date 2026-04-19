@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Chart</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <div id="navMount"></div>
+    
+<section class="panel stack">
+  <div>
+    <div class="eyebrow">Step 2</div>
+    <h2 id="chartTicker">GOLD</h2>
+    <p class="sub" id="chartMeta">Commodities · Live Chart</p>
+  </div>
+</section>
+<section class="chart-shell" style="margin-top:16px">
+  <div class="chart-box">
+    <div class="tv-badge">TradingView Live</div>
+    <div class="tv-line"></div>
+    <div class="tv-watermark">Live chart placeholder</div>
+  </div>
+</section>
+<div class="actions">
+  <a class="btn primary" href="decision.html">Scan This Chart</a>
+</div>
+<script>
+  mountNav('Live Chart');
+  renderChart();
+</script>
+
+  </div>
+</body>
+</html>

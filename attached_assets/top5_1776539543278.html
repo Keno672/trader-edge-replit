@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Top 5</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <div id="navMount"></div>
+    
+<section class="panel stack">
+  <div>
+    <div class="eyebrow">Step 1</div>
+    <h2>Today’s Top 5 Setups</h2>
+    <p class="sub">Tap a setup to open the live chart.</p>
+  </div>
+</section>
+<section id="top5List" class="stack" style="margin-top:16px"></section>
+<script>
+  mountNav('Top 5');
+  renderTop5('top5List');
+</script>
+
+  </div>
+</body>
+</html>
